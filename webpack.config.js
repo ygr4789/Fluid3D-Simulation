@@ -45,6 +45,10 @@ module.exports = {
         use: ["json-loader"],
         type: "javascript/auto",
       },
+      {
+        test: /\.glsl$/,
+        use: ["webpack-glsl-loader"],
+      },
     ],
   },
   plugins: [
