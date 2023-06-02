@@ -39,6 +39,7 @@ export function initFluid(res: number, scene: Scene) {
   particles.forEach((p) => {
     p.mass = WATER_PARTICLE_MASS;
   });
+  computeProperties();
   initParticleObjects(particles, scene);
 }
 
@@ -48,6 +49,10 @@ export function solveFluid(dt: number) {
   computeAcceleration();
   updateParcitles(dt);
   handleBoundaries();
+}
+
+export function renderFluid() {
+  renderParticleObjects(particles);
 }
 
 function computeDensity() {
@@ -65,26 +70,14 @@ function computeProperties() {
   let r = vec3.create();
   particles.forEach((p) => {
     p.density = 0;
-    p.color = 0;
     hashNearNeighbors(p.pos).forEach((p_) => {
       vec3.sub(r, p.pos, p_.pos);
-      let kernel = poly6Kernel(r)
-      p.density += p_.mass * kernel;
-      p.color += (p_.mass / WATER_DENSITY) * kernel;
+      p.density += p_.mass * poly6Kernel(r);
     });
     p.pressure = WATER_GAS_CONSTANT * (p.density - WATER_DENSITY);
   });
 }
 
-export function renderFluid() {
-  renderParticleObjects(particles);
-}
-
-function computePressure() {
-  particles.forEach((p) => {
-    p.pressure = WATER_GAS_CONSTANT * (p.density - WATER_DENSITY);
-  });
-}
 
 function computeAcceleration() {
   let r = vec3.create();

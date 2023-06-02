@@ -8,7 +8,6 @@ export class Particle {
   pressure: number;
   density: number;
   mass: number;
-  color: number;
   constructor(x: number, y: number, z: number, mass: number, scene: THREE.Scene | undefined = undefined) {
     this.pos = vec3.fromValues(x, y, z);
     this.vel = vec3.create();

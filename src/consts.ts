@@ -5,9 +5,10 @@ export const EPSILON = 0.1;
 export const PADDING = 5;
 
 export const WATER_DENSITY = 998;
-export const WATER_GAS_CONSTANT = 1000;
+export const WATER_GAS_CONSTANT = 2000;
 export const WATER_VISCOSITY = 0.5 ;
 export const WATER_COLOR = "#0000ff";
+export const WATER_PARTICLE_RADIUS = 0.1;
 
 export const KERNEL_DISTANCE = 1;
 export const SQR_KERNEL_DISTANCE = KERNEL_DISTANCE ** 2;

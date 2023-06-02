@@ -56,7 +56,7 @@ const ui = {
   toggleUpdating: () => {
     isPlaying = !isPlaying;
   },
-  timestep: 13,
+  subStepNum: 4,
 };
 
 // ===================== GUI =====================
@@ -64,13 +64,12 @@ const ui = {
 function initGUI() {
   const gui = new dat.GUI();
   gui.add(ui, "toggleUpdating").name("Run / Pause");
-  gui.add(ui, "timestep", 1, renderStep).step(1).name("TimeStep");
+  gui.add(ui, "subStepNum", 1, 10).step(1).name("Sub Steps");
 }
-
 // ===================== MAIN =====================
 
 let isPlaying: Boolean = true;
-const renderStep = 13;
+const timeStep = 13;
 
 function main() {
   const stats = new Stats();
@@ -84,8 +83,8 @@ function main() {
     requestAnimationFrame(animate);
     stats.begin();
     if (isPlaying) {
-      for(let i=0; i<(renderStep / ui.timestep); i++) {
-        updateStates(ui.timestep / 1000);
+      for (let i = 0; i < ui.subStepNum; i++) {
+        updateStates(timeStep / ui.subStepNum / 1000);
       }
       renderFluid();
     }
@@ -95,7 +94,7 @@ function main() {
 }
 
 function updateStates(dt: number) {
-  solveFluid(dt)
+  solveFluid(dt);
 }
 
 function preventDefault() {
