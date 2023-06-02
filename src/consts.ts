@@ -10,12 +10,13 @@ export const WATER_VISCOSITY = 0.5 ;
 export const WATER_COLOR = "#0000ff";
 
 export const KERNEL_DISTANCE = 1;
+export const SQR_KERNEL_DISTANCE = KERNEL_DISTANCE ** 2;
 export const GRAVITY = vec3.fromValues(0,-10, 0);
 
 const KERNEL_FACTOR = 315 / 64 / Math.PI / KERNEL_DISTANCE ** 9;
 export function poly6Kernel(r: vec3) {
-  let d = vec3.len(r);
-  return KERNEL_FACTOR * (KERNEL_DISTANCE ** 2 - d ** 2) ** 3;
+  let sqrd = vec3.sqrLen(r);
+  return KERNEL_FACTOR * (SQR_KERNEL_DISTANCE - sqrd) ** 3;
 }
 
 const GRAD_FACTOR = -45 / Math.PI / KERNEL_DISTANCE ** 6;

@@ -1,6 +1,6 @@
 import { vec3 } from "gl-matrix";
 import { Particle } from "./particle";
-import { KERNEL_DISTANCE, BOUND, PADDING } from "./consts";
+import { KERNEL_DISTANCE, BOUND, PADDING, SQR_KERNEL_DISTANCE } from "./consts";
 
 let hashTable: Array<Array<Particle>>;
 const max_xi = Math.floor(((BOUND + PADDING) * 2) / KERNEL_DISTANCE);
@@ -33,7 +33,7 @@ export function hashNearNeighbors(loc: vec3) {
       for (let zi_ = zi - 1; zi_ <= zi + 1; zi_++) {
         if (zi_ < 0 || zi >= max_zi) continue;
         hashTable[xi_ * max_xi * max_yi + yi_ * max_yi + zi_].forEach((p) => {
-          if (vec3.dist(loc, p.pos) < KERNEL_DISTANCE) ret.push(p);
+          if (vec3.sqrDist(loc, p.pos) < SQR_KERNEL_DISTANCE) ret.push(p);
         });
       }
     }
@@ -44,7 +44,7 @@ export function hashNearNeighbors(loc: vec3) {
 export function naiveNearNeighbors(loc: vec3, particles: Array<Particle>) {
   let ret: Array<Particle> = [];
   particles.forEach((p) => {
-    if (vec3.dist(loc, p.pos) < KERNEL_DISTANCE) ret.push(p);
+    if (vec3.sqrDist(loc, p.pos) < SQR_KERNEL_DISTANCE) ret.push(p);
   });
   return ret;
 }

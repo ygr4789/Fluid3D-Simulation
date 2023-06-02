@@ -4,8 +4,8 @@ import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 
 import "./style/style.css";
-import { BOUND, KERNEL_DISTANCE } from "./consts";
-import { initFluid, solveFluid } from "./fluid";
+import { BOUND } from "./consts";
+import { initFluid, renderFluid, solveFluid } from "./fluid";
 import { initBoundaries } from "./boundary";
 
 const scene = new THREE.Scene();
@@ -17,9 +17,6 @@ const renderer = new THREE.WebGLRenderer({
 });
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
-
-const gl = renderer.getContext();
-// gl.enable(gl.POINT_SPRITE);
 
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000.0);
 camera.position.set(40, 40, 45);
@@ -67,30 +64,30 @@ const ui = {
 function initGUI() {
   const gui = new dat.GUI();
   gui.add(ui, "toggleUpdating").name("Run / Pause");
-  gui.add(ui, "timestep", 1, 100).step(1).name("TimeStep");
+  gui.add(ui, "timestep", 1, renderStep).step(1).name("TimeStep");
 }
-
-// ===================== Simulate =====================
-
-
 
 // ===================== MAIN =====================
 
 let isPlaying: Boolean = true;
+const renderStep = 13;
 
 function main() {
   const stats = new Stats();
   document.body.appendChild(stats.dom);
 
-  initFluid(KERNEL_DISTANCE, scene);
-  initBoundaries(KERNEL_DISTANCE);
+  initFluid(0.5, scene);
+  initBoundaries(1);
 
   animate();
   function animate() {
     requestAnimationFrame(animate);
     stats.begin();
     if (isPlaying) {
-      updateStates(ui.timestep / 1000);
+      for(let i=0; i<(renderStep / ui.timestep); i++) {
+        updateStates(ui.timestep / 1000);
+      }
+      renderFluid();
     }
     renderer.render(scene, camera);
     stats.end();

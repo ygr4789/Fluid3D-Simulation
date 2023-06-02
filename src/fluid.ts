@@ -14,6 +14,7 @@ import {
 } from "./consts";
 import { Scene } from "three";
 import { boundaries } from "./boundary";
+import { initParticleObjects, renderParticleObjects } from "./render";
 
 let particles: Array<Particle> = [];
 
@@ -38,16 +39,15 @@ export function initFluid(res: number, scene: Scene) {
   particles.forEach((p) => {
     p.mass = WATER_PARTICLE_MASS;
   });
+  initParticleObjects(particles, scene);
 }
 
 export function solveFluid(dt: number) {
   updateHashTable([...particles, ...boundaries]);
-  computeDensity();
-  computePressure();
+  computeProperties();
   computeAcceleration();
   updateParcitles(dt);
   handleBoundaries();
-  particles.forEach((p) => p.render());
 }
 
 function computeDensity() {
@@ -59,6 +59,25 @@ function computeDensity() {
       p.density += p_.mass * poly6Kernel(r);
     });
   });
+}
+
+function computeProperties() {
+  let r = vec3.create();
+  particles.forEach((p) => {
+    p.density = 0;
+    p.color = 0;
+    hashNearNeighbors(p.pos).forEach((p_) => {
+      vec3.sub(r, p.pos, p_.pos);
+      let kernel = poly6Kernel(r)
+      p.density += p_.mass * kernel;
+      p.color += (p_.mass / WATER_DENSITY) * kernel;
+    });
+    p.pressure = WATER_GAS_CONSTANT * (p.density - WATER_DENSITY);
+  });
+}
+
+export function renderFluid() {
+  renderParticleObjects(particles);
 }
 
 function computePressure() {
@@ -82,7 +101,7 @@ function computeAcceleration() {
 
       vec3.sub(r, p.pos, p_.pos);
       acc_p_ = poly6Grad(r);
-      if (isBoundary) vec3.scale(acc_p_, acc_p_, (p_.mass / p.density) * p.pressure);
+      if (isBoundary) vec3.scale(acc_p_, acc_p_, (p_.mass / p.density) * Math.max(0, p.pressure));
       else vec3.scale(acc_p_, acc_p_, ((p_.mass / p_.density) * (p.pressure + p_.pressure)) / 2);
       vec3.add(acc_pressure, acc_pressure, acc_p_);
 
