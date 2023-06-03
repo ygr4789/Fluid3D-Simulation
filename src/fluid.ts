@@ -1,6 +1,5 @@
 import { vec3 } from "gl-matrix";
 import { Particle } from "./particle";
-import { hashNearNeighbors, updateHashTable } from "./hashing";
 import {
   BOUND,
   EPSILON,
@@ -15,10 +14,24 @@ import {
 import { Scene } from "three";
 import { boundaries } from "./boundary";
 import { initParticleObjects, renderParticleObjects } from "./render";
+import { bindHashTable, hashNearNeighbors, updateHashTable } from "./hashing";
 
 let particles: Array<Particle> = [];
 
+export function solveFluid(dt: number) {
+  updateHashTable();
+  computeProperties();
+  computeAcceleration();
+  updateParcitles(dt);
+  handleBoundaries();
+}
+
+export function renderFluid() {
+  renderParticleObjects(particles);
+}
+
 export function initFluid(res: number, scene: Scene) {
+  particles = [];
   for (let x = -BOUND / 2; x < BOUND / 2; x += res) {
     for (let y = -BOUND / 2; y < BOUND / 2; y += res) {
       for (let z = -BOUND / 2; z < BOUND / 2; z += res) {
@@ -29,7 +42,8 @@ export function initFluid(res: number, scene: Scene) {
       }
     }
   }
-  updateHashTable(particles);
+  bindHashTable(particles);
+  updateHashTable();
   computeDensity();
   let max_density = 0;
   particles.forEach((p) => {
@@ -41,18 +55,7 @@ export function initFluid(res: number, scene: Scene) {
   });
   computeProperties();
   initParticleObjects(particles, scene);
-}
-
-export function solveFluid(dt: number) {
-  updateHashTable([...particles, ...boundaries]);
-  computeProperties();
-  computeAcceleration();
-  updateParcitles(dt);
-  handleBoundaries();
-}
-
-export function renderFluid() {
-  renderParticleObjects(particles);
+  bindHashTable([...particles, ...boundaries]);
 }
 
 function computeDensity() {

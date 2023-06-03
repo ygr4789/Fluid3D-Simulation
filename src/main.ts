@@ -7,6 +7,7 @@ import "./style/style.css";
 import { BOUND } from "./consts";
 import { initFluid, renderFluid, solveFluid } from "./fluid";
 import { initBoundaries } from "./boundary";
+import { removeParticleObjects } from "./render";
 
 const scene = new THREE.Scene();
 const setcolor = "#000000";
@@ -56,7 +57,11 @@ const ui = {
   toggleUpdating: () => {
     isPlaying = !isPlaying;
   },
+  reset: () => {
+    initAll(initialDistance);
+  },
   subStepNum: 4,
+  resolution: 0,
 };
 
 // ===================== GUI =====================
@@ -64,19 +69,23 @@ const ui = {
 function initGUI() {
   const gui = new dat.GUI();
   gui.add(ui, "toggleUpdating").name("Run / Pause");
+  gui.add(ui, "reset").name("Reset");
   gui.add(ui, "subStepNum", 1, 10).step(1).name("Sub Steps");
+  gui.add(ui, "resolution", 0, 10).step(1).name("Resolution").onChange((val) => {
+    initialDistance = 1 / ((10 + val) / 10) 
+  });
 }
 // ===================== MAIN =====================
 
 let isPlaying: Boolean = true;
+let initialDistance = 1;
 const timeStep = 13;
 
 function main() {
   const stats = new Stats();
   document.body.appendChild(stats.dom);
 
-  initFluid(0.5, scene);
-  initBoundaries(1);
+  initAll(initialDistance);
 
   animate();
   function animate() {
@@ -91,6 +100,12 @@ function main() {
     renderer.render(scene, camera);
     stats.end();
   }
+}
+
+function initAll(initialDistance: number) {
+  removeParticleObjects(scene);
+  initBoundaries(initialDistance);
+  initFluid(initialDistance, scene);
 }
 
 function updateStates(dt: number) {

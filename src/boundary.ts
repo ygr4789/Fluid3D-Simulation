@@ -1,11 +1,12 @@
 import { vec3 } from "gl-matrix";
 import { BOUND, WATER_DENSITY, poly6Kernel } from "./consts";
-import { hashNearNeighbors, updateHashTable } from "./hashing";
 import { Particle } from "./particle";
+import { bindHashTable, hashNearNeighbors, updateHashTable } from "./hashing";
 
-export const boundaries: Array<Particle> = [];
+export let boundaries: Array<Particle> = [];
 
 export function initBoundaries(res: number) {
+  boundaries = [];
   for (let x = -BOUND; x <= BOUND; x += res) {
     for (let y = -BOUND; y <= BOUND; y += res) {
       boundaries.push(new Particle(x, y, -BOUND, 1));
@@ -24,7 +25,8 @@ export function initBoundaries(res: number) {
       boundaries.push(new Particle(BOUND, y, z, 1));
     }
   }
-  updateHashTable(boundaries);
+  bindHashTable(boundaries);
+  updateHashTable();
   computeDensity();
   boundaries.forEach((p) => {
     let volume = 1 / p.density;

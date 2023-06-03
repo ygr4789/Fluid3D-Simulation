@@ -44,3 +44,11 @@ export function renderParticleObjects(particles: Array<Particle>) {
 
   points.geometry.attributes.position.needsUpdate = true;
 }
+
+export function removeParticleObjects(scene: THREE.Scene) {
+  if(points !== undefined) {
+    scene.remove(points);
+    points.geometry.dispose();
+    (points.material as THREE.Material).dispose();
+  }
+}
